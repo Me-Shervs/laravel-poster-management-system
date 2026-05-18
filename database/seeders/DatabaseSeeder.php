@@ -15,13 +15,13 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // 👤 1. Create 3 users
+        // 1. Create 3 users
         $users = User::factory(3)->create();
 
-        // 🏷 2. Create 5 main categories
+        // 2. Create 5 main categories
         $categories = Category::factory(5)->create();
 
-        // 🌿 3. Add nesting
+        // 3. Add nesting
         $categories[0]->children()->createMany([
             [
                 'name' => 'Sub ' . fake()->word(),
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             'slug' => fake()->unique()->slug(),
         ]);
 
-        // 🖼 4. Create 20 posters
+        // 4. Create 20 posters
         $categories = Category::all();
 
         Poster::factory(20)->create()->each(function ($poster) use ($users, $categories) {

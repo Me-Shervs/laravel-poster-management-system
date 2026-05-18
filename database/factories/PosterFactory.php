@@ -23,7 +23,7 @@ class PosterFactory extends Factory
             'content' => [
                 'text' => fake()->paragraph(),
             ],
-            'status' => fake()->randomElement(['draft', 'scheduled', 'published', 'expired']),
+            'status' => 'draft',
             'published_at' => fake()->optional()->dateTime(),
             'expires_at' => fake()->optional()->dateTime(),
         ];
