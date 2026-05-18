@@ -1,3 +1,5 @@
+## Stack: Laravel 12.59.0 · MySQL
+
 ## Installation
 ```bash
 composer install
