@@ -1,8 +1,15 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('posters:expire')
+    ->everyFiveMinutes();
+
+Schedule::command('posters:dispatch-scheduled')
+    ->everyMinute();
+
+Schedule::command('posters:cleanup-drafts')
+    ->daily();
+
+Schedule::command('posters:report')
+    ->weekly();
