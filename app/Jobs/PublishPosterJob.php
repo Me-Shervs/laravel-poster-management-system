@@ -4,20 +4,16 @@ namespace App\Jobs;
 
 use Throwable;
 use App\Models\Schedule;
-use App\Models\AuditLog;
-use App\Enums\PosterStatus;
+use App\Services\PosterPublisherService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class PublishPosterJob implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
 
@@ -30,63 +26,20 @@ class PublishPosterJob implements ShouldQueue
         public Schedule $schedule
     ) {}
 
-    public function handle(): void
+    public function handle(PosterPublisherService $service): void
     {
-        $poster = $this->schedule->poster;
-
-        if (!$poster) {
-            return;
-        }
-
-        $oldValues = $poster->toArray();
-
-        if ($this->schedule->action === 'publish') {
-
-            $poster->update([
-                'status' => PosterStatus::Published,
-                'published_at' => now(),
-            ]);
-        }
-
-        if ($this->schedule->action === 'unpublish') {
-
-            $poster->update([
-                'status' => PosterStatus::Expired,
-            ]);
-        }
-
-        $this->schedule->update([
-            'status' => 'processed',
-            'processed_at' => now(),
-        ]);
-
-        AuditLog::create([
-            'user_id' => $poster->user_id,
-            'event' => 'poster_schedule_processed',
-
-            'old_values' => $oldValues,
-
-            'new_values' => $poster->fresh()->toArray(),
-
-            'auditable_id' => $poster->id,
-            'auditable_type' => $poster::class,
-        ]);
+        $service->handle($this->schedule);
     }
 
-    public function failed(
-        ?Throwable $exception
-    ): void {
-
+    public function failed(Throwable $exception): void
+    {
         $this->schedule->update([
             'status' => 'failed',
         ]);
 
-        logger()->error(
-            'PublishPosterJob failed',
-            [
-                'schedule_id' => $this->schedule->id,
-                'error' => $exception?->getMessage(),
-            ]
-        );
+        logger()->error('PublishPosterJob failed', [
+            'schedule_id' => $this->schedule->id,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }
