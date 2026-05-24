@@ -4,11 +4,13 @@ use App\Models\User;
 use App\Models\Poster;
 use App\Models\Schedule;
 use App\Models\Category;
+use App\Enums\PosterStatus;
 use App\Jobs\PublishPosterJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Artisan;
 use Laravel\Sanctum\Sanctum;
+
 
 uses(RefreshDatabase::class);
 
@@ -22,7 +24,7 @@ it('creates poster with draft status by default', function () {
 
     $poster = Poster::factory()->create();
 
-    expect($poster->status->value)->toBe('draft');
+    expect($poster->status)->toBe(PosterStatus::Draft);
 });
 
 /*
