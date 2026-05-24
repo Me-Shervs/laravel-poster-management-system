@@ -1,48 +1,50 @@
-## Stack: Laravel 12.59.0 · MySQL
+# Stack: Laravel 12.59.0 · MySQL
 
-## Installation
+# Installation
 ```bash
     composer install
     cp .env.example .env
     php artisan key:generate
 ```
 
-## Run Migrations and Seed Database
+# Run Migrations and Seed Database
 ```bash
     php artisan migrate:fresh --seed
 ```
 
-## Verify Seeded Data
+# Verify Seeded Data
 ```bash
     php artisan tinker
 
     User::count();
     Poster::count();
     Category::count();
+
+    exit;
 ```
 
-## Task Scheduling Commands
-# Check All Commands
+# Task Scheduling Commands
+## Check All Commands
 ```bash
     php artisan list
 ```
-# Weekly Poster Command
+## Weekly Poster Command
     After Seeded
 ```bash
     php artisan posters:report
 ```
 
-# 90 Day Cleanup Drafts Command
+## 90 Day Cleanup Drafts Command
 ```bash
     php artisan posters:cleanup-drafts
 ```
-# Dispatch Scheduled Posters Command
-    Run 2 Terminals
-    Terminal 1
+## Dispatch Scheduled Posters Command
+* Run 2 Terminals
+* Terminal 1
 ```bash
     php artisan queue:work
 ```
-    Terminal 2
+* Terminal 2
 ```bash
     php artisan posters:dispatch-scheduled
 ```
@@ -51,6 +53,7 @@
     php artisan tinker
     # this will create expired post
     Poster::factory()->published()->create(); 
+    exit;
 ```
 ```bash
     php artisan posters:expire
@@ -77,7 +80,7 @@
         'role' => 'admin',
     ]);
 ```
-Go to postman
+1. Go to postman
 ```http
     POST /api/v1/login
 ```
@@ -87,23 +90,23 @@ Go to postman
     "password": "password"
     }
 ```
-Copy the response token
+2. Copy the response token
 ```JSON
     {
     "token": "1|xxxxxxxxxxxxxxxx",
     }
 ```
-To try and post
+3. To try and post
 ```http
     POST http://127.0.0.1:8000/api/v1/posters
 ```
-Add header
+4. Add header
 ```header
     Authorization: Bearer YOUR_TOKEN_HERE
     Accept: application/json
     Content-Type: application/json
 ```
-Add Body
+5. Add Body
 ```Body
     {
     "title": "My First Poster",
