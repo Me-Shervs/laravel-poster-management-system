@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Schedule;
 use App\Jobs\PublishPosterJob;
+use \App\Enums\ScheduleStatus;
 
 class DispatchScheduledPostersCommand extends Command
 {
@@ -28,12 +29,13 @@ class DispatchScheduledPostersCommand extends Command
     public function handle(): void
     {
         Schedule::query()
-            ->where('status', 'pending')
+            ->where('status', ScheduleStatus::Pending->value)
             ->where('scheduled_at', '<=', now())
-            ->each(function ($schedule) {
-
+            ->chunkById(100, function ($schedules) {
+            foreach ($schedules as $schedule) {
                 PublishPosterJob::dispatch($schedule);
-            });
+            }
+        });
 
         $this->info('Scheduled poster jobs dispatched successfully.');
     }

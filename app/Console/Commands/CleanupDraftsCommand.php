@@ -7,39 +7,34 @@ use App\Models\Poster;
 
 class CleanupDraftsCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'posters:cleanup-drafts';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Delete old draft posters older than 90 days';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): void
     {
+        $count = 0;
+
         Poster::query()
             ->where('status', 'draft')
-            ->where(
-                'created_at',
-                '<=',
-                now()->subDays(90)
-            )
-            ->chunkById(100, function ($posters) {
+            ->where('created_at', '<=', now()->subDays(90))
+            ->chunkById(100, function ($posters) use (&$count) {
 
                 foreach ($posters as $poster) {
+
+                    $poster->auditLogs()->create([
+                        'user_id' => null,
+                        'event' => 'poster_cleanup_deleted',
+                        'old_values' => $poster->toArray(),
+                        'new_values' => null,
+                    ]);
+
                     $poster->delete();
+
+                    $count++;
                 }
             });
 
-        $this->info('Old draft posters cleaned successfully.');
+        $this->info("Old draft posters cleaned successfully. Deleted: {$count}");
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Poster;
+use App\Enums\PosterStatus;
 
 class ExpirePostersCommand extends Command
 {
@@ -26,14 +27,30 @@ class ExpirePostersCommand extends Command
      */
     public function handle(): void
     {
+        $count = 0;
+
         Poster::query()
-            ->where('status', 'published')
+            ->where('status', PosterStatus::Published->value)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now())
-            ->update([
-                'status' => 'expired',
-            ]);
+            ->each(function ($poster) use (&$count) {
 
-        $this->info('Expired posters updated successfully.');
+                $old = $poster->toArray();
+
+                $poster->update([
+                    'status' => PosterStatus::Expired->value,
+                ]);
+
+                $poster->auditLogs()->create([
+                    'user_id' => $poster->user_id,
+                    'event' => 'poster_expired',
+                    'old_values' => $old,
+                    'new_values' => $poster->fresh()->toArray(),
+                ]);
+
+                $count++;
+            });
+
+        $this->info("Expired posters processed: {$count}");
     }
 }
