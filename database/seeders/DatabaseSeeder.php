@@ -8,6 +8,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Poster;
+use App\Models\Schedule;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,13 +16,10 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // 1. Create 3 users
         $users = User::factory(3)->create();
 
-        // 2. Create 5 main categories
         $categories = Category::factory(5)->create();
 
-        // 3. Add nesting
         $categories[0]->children()->createMany([
             [
                 'name' => 'Sub ' . fake()->word(),
@@ -38,17 +36,23 @@ class DatabaseSeeder extends Seeder
             'slug' => fake()->unique()->slug(),
         ]);
 
-        // 4. Create 20 posters
         $categories = Category::all();
 
-        Poster::factory(20)->create()->each(function ($poster) use ($users, $categories) {
+        $posters = Poster::factory(20)
+            ->create([
+                'user_id' => fn () => $users->random()->id,
+            ])
+            ->each(function ($poster) use ($categories) {
 
-            $poster->user_id = $users->random()->id;
-            $poster->save();
+                $poster->categories()->attach(
+                    $categories->random(rand(1, 3))->pluck('id')
+                );
+            });
 
-            $poster->categories()->attach(
-                $categories->random(rand(1, 3))->pluck('id')->toArray()
-            );
-        });
+        foreach ($posters as $poster) {
+            Schedule::factory()->create([
+                'poster_id' => $poster->id,
+            ]);
+        }
     }
 }

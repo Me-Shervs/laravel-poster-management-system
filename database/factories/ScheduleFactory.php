@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Models\Poster;
 use App\Models\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Enums\ScheduleAction;
+use App\Enums\ScheduleStatus;
 
 class ScheduleFactory extends Factory
 {
@@ -14,9 +16,17 @@ class ScheduleFactory extends Factory
     {
         return [
             'poster_id' => Poster::factory(),
-            'scheduled_at' => now()->addMinutes(10),
-            'action' => 'publish',
-            'status' => 'pending',
+
+            'scheduled_at' => now()->subMinutes(rand(1, 60)),
+
+            'action' => fake()->randomElement([
+                ScheduleAction::Publish,
+                ScheduleAction::Unpublish,
+            ]),
+
+            'status' => ScheduleStatus::Pending,
+
+            'processed_at' => null,
         ];
     }
 }
