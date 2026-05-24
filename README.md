@@ -29,7 +29,6 @@
     php artisan list
 ```
 ## Weekly Poster Command
-    After Seeded
 ```bash
     php artisan posters:report
 ```
