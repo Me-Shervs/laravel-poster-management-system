@@ -17,14 +17,12 @@ class StorePosterRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
 
             'content' => ['required', 'array'],
+            'content.text' => ['required', 'string'],
 
             'expires_at' => ['nullable', 'date'],
 
             'category_ids' => ['nullable', 'array'],
-
-            'category_ids.*' => [
-                'exists:categories,id'
-            ],
+            'category_ids.*' => ['exists:categories,id'],
         ];
     }
 }
