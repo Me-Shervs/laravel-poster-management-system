@@ -78,10 +78,15 @@
         'password' => Hash::make('password'),
         'role' => 'admin',
     ]);
+
+    exit;
+```
+```bash
+    php artisan serve
 ```
 1. Go to postman
 ```http
-    POST /api/v1/login
+    POST http://127.0.0.1:8000/login
 ```
 ```JSON
     {
